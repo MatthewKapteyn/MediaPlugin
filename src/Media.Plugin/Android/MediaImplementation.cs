@@ -890,8 +890,37 @@ namespace Plugin.Media
                     {
                         Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
 
+                        // Skip processing
                         if (photoSize == PhotoSize.Full)
-                            return false;
+                        {
+                            // Need to convert to jpeg
+                            if (System.IO.Path.GetExtension(filePath) == ".heic")
+                            {
+                                //this now will return the requested width/height from file, so no longer need to scale
+                                using (var originalImage = BitmapFactory.DecodeFile(filePath))
+                                {
+
+                                    //always need to compress to save back to disk
+                                    using (var stream = File.Open(filePath, FileMode.Create, FileAccess.ReadWrite))
+                                    {
+
+                                        originalImage.Compress(Bitmap.CompressFormat.Jpeg, quality, stream);
+                                        stream.Close();
+                                    }
+
+                                    originalImage.Recycle();
+
+                                    // Dispose of the Java side bitmap.
+                                    GC.Collect();
+                                    return true;
+                                }
+                            }
+                            // No processing needed
+                            else
+                            {
+                                return false;
+                            }
+                        }
 
                         var percent = 1.0f;
                         switch (photoSize)
