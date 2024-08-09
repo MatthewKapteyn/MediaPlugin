@@ -893,10 +893,10 @@ namespace Plugin.Media
                         // Skip processing
                         if (photoSize == PhotoSize.Full)
                         {
-                            // Need to convert to jpeg
-                            if (System.IO.Path.GetExtension(filePath) == ".heic")
+                            // Ensure we convert any heic, png, etc to JPEG format
+                            var fileExt = System.IO.Path.GetExtension(filePath).ToLower();
+                            if (fileExt != ".jpg" && fileExt != ".jpeg")
                             {
-                                //this now will return the requested width/height from file, so no longer need to scale
                                 using (var originalImage = BitmapFactory.DecodeFile(filePath))
                                 {
 
